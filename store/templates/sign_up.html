@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="w-50 p-3" align="left" style="border: 1px solid gray; border-radius: 10px; margin-top: 10px;">
+        <form class="row g-3" action="" method="post">
+            {% csrf_token %}
+
+            <div class="col-12">
+                <label for="inputEmail" class="form-label">Email</label>
+                {% if error %}
+                    <p id="email_text" style="color: red">{{ error }}</p>
+                    <input type="email" class="form-control border-danger" id="inputEmail"
+                           placeholder="Example@example.com" name="email" onchange="changeEmail()" value="{{ email }}">
+                {% else %}
+                    <input type="email" class="form-control" id="inputEmail" placeholder="Example@example.com"
+                           name="email">
+                {% endif %}
+            </div>
+
+            <div class="col-md-6">
+                <label for="inputFirstName" class="form-label">First name</label>
+                <input type="text" class="form-control" id="inputFirstName" placeholder="First name" name="first_name"
+                value="{{ first_name }}">
+            </div>
+
+            <div class="col-md-6">
+                <label for="inputLastName" class="form-label">Last name</label>
+                <input type="text" class="form-control" id="inputLastName" placeholder="Last name" name="last_name"
+                value="{{ last_name }}">
+            </div>
+
+            <div class="col-12">
+                <label for="inputPassword1" class="form-label">Password</label>
+                <input type="password" class="form-control" id="inputPassword1" placeholder="Password"
+                       onchange="checkPasswords()" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,20}$"
+                       aria-describedby="passwordHelp" name="password">
+                <div id="passwordHelp" class="form-text">
+                    Password must have minimum 8 characters, at least one uppercase letter, one lowercase letter,
+                    one number
+                </div>
+            </div>
+
+            <div class="col-12">
+                <input type="password" class="form-control" id="inputPassword2" placeholder="Confirm password"
+                       onchange="checkPasswords()" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,20}$">
+            </div>
+
+            <p id="password_text" style="margin: 0px;"></p>
+
+            <div class="col-md-6">
+                <label for="inputPhone" class="form-label">Phone</label>
+                <input type="text" class="form-control" id="inputPhone" name="phone" value="{{ phone }}">
+            </div>
+
+            <div class="col-md-6">
+                <label for="inputBirthDate" class="form-label">Birth date</label>
+                <input type="date" class="form-control" id="inputBirthDate" name="birth_date" value="{{ birth_date }}">
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary"  id="submit" disabled="disabled">Sign Up</button>
+            </div>
+
+        </form>
+    </div>
+    <script>
+        function checkPasswords() {
+            let password1 = document.getElementById('inputPassword1');
+            let password2 = document.getElementById('inputPassword2');
+            let submit = document.getElementById('submit');
+            let password_text = document.getElementById('password_text');
+
+            if (password1.value != password2.value) {
+                password1.classList.add('border-danger');
+                password1.classList.remove('border-success');
+                password2.classList.add('border-danger');
+                password2.classList.remove('border-success');
+                submit.disabled='disabled';
+                password_text.innerHTML = 'Passwords didn`t match!';
+                password_text.style.color = 'red';
+            }
+            else {
+                password1.classList.remove('border-danger');
+                password1.classList.add('border-success');
+                password2.classList.remove('border-danger');
+                password2.classList.add('border-success');
+                submit.disabled="";
+                password_text.innerHTML = 'Passwords match!';
+                password_text.style.color = 'green';
+            }
+        };
+
+        function changeEmail() {
+            let email = document.getElementById('inputEmail');
+            let email_text = document.getElementById('email_text');
+            email_text.remove()
+            email.classList.remove('border-danger');
+            email.classList.add('border-success');
+        };
+    </script>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="w-25 p-3" align="left" style="border: 1px solid gray; border-radius: 10px; margin-top: 10px;">
+        <table class="table">
+            <tbody>
+                <tr>
+                    <td>Email:</td>
+                    <td>{{ user.email }}</td>
+                </tr>
+                <tr>
+                    <td>First Name:</td>
+                    <td>{{ user.first_name }}</td>
+                </tr>
+                <tr>
+                    <td>Last Name:</td>
+                    <td>{{ user.last_name }}</td>
+                </tr>
+                <tr>
+                    <td>Phone:</td>
+                    <td>{{ user.phone }}</td>
+                </tr>
+                <tr>
+                    <td>Birth Date:</td>
+                    <td>{{ user.birth_date }}</td>
+                </tr>
+                <tr>
+                    <td>Wallet:</td>
+                    <td>{{ user.wallet }} тнг.</td>
+                </tr>
+            </tbody>
+        </table>
+        {% if user.is_superuser %}
+            <div align="center">
+                <button type="button" class="btn btn-primary" onclick="location.href='{% url 'admin:index' %}'">
+                    Admin Panel
+                </button>
+            </div>
+        {% endif %}
+        <div align="center">
+            <a href="{% url 'profile_edit_url' %}" class="btn btn-primary">Edit Profile</a>
+            <a href="{% url 'profile_delete_url' %}" class="btn btn-danger">Delete Profile</a>
+        </div>
+    </div>
+{% endblock %}

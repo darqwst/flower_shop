@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1 align="center" style="margin: 20px;">{{ category }}</h1>
+    <div class="w-75 p-3" style="border: 1px solid gray; border-radius: 10px; margin-top: 10px; background-color: #292929;">
+        <div class="row row-cols-1 row-cols-md-4 g-4">
+            {% for product in products %}
+                <div class="col">
+                    <div class="card h-100" style="border: 1px solid #292929;">
+                        <a href="" style="text-decoration: none;">
+                            <img src="{{ product.image.url }}" class="card-img-top" alt="...">
+                            <div class="card-body" style="color: black;">
+                                <h3 class="card-title">{{ product.name }}</h3>
+                                <p class="card-text">{{ product.description }}</p>
+                            </div>
+                        </a>
+                        <div class="card-footer" style="background-color: #F0E130;">
+                            <p class="fs-3 fw-semibold" style="margin: 0px; font-family: sans-serif;">
+                                {{ product.price }} тнг.
+                            </p>
+                            <button id="{{ product.id }}" class="btn btn-success"
+                                    onclick="addToCart(this.id, '{% url 'add_cart_url' product.id %}')">
+                                Add To Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        function addToCart(button_id, url) {
+            let button = document.getElementById(button_id);
+            let request = new XMLHttpRequest();
+
+            request.onreadystatechange = function() {
+                if (request.readyState == 4) {
+                    button.innerHTML = 'Added!';
+                }
+            }
+
+            request.open('GET', url, true);
+            request.send(null);
+        }
+    </script>
+{% endblock %}
