@@ -1,12 +1,10 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
 from django.http import HttpResponse
 from .models import *
-from .forms import CustomerUpdateForm
-
-from django.shortcuts import render
-from .models import Product, Category
+from .forms import *
 
 
 def homeView(request):
@@ -36,10 +34,8 @@ def signInView(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         user = authenticate(email=email, password=password)
-        # authenticate - Если найден юзер в БД с таким имейлом и паролем то возвращает его, иначе None
         if user is not None:
             login(request, user)
-            # login - Авторизует юзера user и дает ему csrf_token, sessionid
             return redirect('home_url')
         context = {
             'error': 'Не верный логин и/или пароль',
@@ -89,8 +85,26 @@ def signUpView(request):
 
 
 def signOutView(request):
-    logout(request)  # Встроенная функция, которая выкидывает из системы юзера(Видит юзера по request.user)
-    return redirect('home_url')  # Перенаправляем по url 'home_url'
+    logout(request)
+    return redirect('home_url')
+
+def is_admin(user):
+    return user.is_authenticated and user.is_staff
+@user_passes_test(is_admin, login_url='home_url')
+def add_product(request):
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('products_url')
+    else:
+        form = ProductForm()
+
+    context = {
+        'categories': Category.objects.all(),
+        'form': form,
+    }
+    return render(request, 'add_product.html', context)
 
 
 def productsView(request):
@@ -122,7 +136,7 @@ def cartDetailView(request):
             count = 1
             for product_id in request.session['cart']:
                 product = Product.objects.get(id=product_id)
-                product.count = count  # Создаем у объекта новый атрибут, его не будет в бд, только на этот вью
+                product.count = count
                 context['cart'].append(product)
                 count += 1
                 total += product.price
@@ -145,7 +159,7 @@ def cartDetailView(request):
                 count = 1
                 for product_id in request.session['cart']:
                     product = Product.objects.get(id=product_id)
-                    product.count = count  # Создаем у объекта новый атрибут, его не будет в бд, только на этот вью
+                    product.count = count
                     context['cart'].append(product)
                     count += 1
                 context['total'] = total
@@ -182,7 +196,7 @@ def profileDeleteView(request):
     if request.user.is_authenticated:
         if request.method == 'POST':
             request.user.delete()
-            return redirect('home_url')  # Можно перенаправить на любую другую страницу после удаления
+            return redirect('home_url')
         context = {
             'categories': Category.objects.all(),
         }

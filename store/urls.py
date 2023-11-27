@@ -8,6 +8,7 @@ urlpatterns = [
     path('sign_up', signUpView, name='sign_up_url'),
     path('sign_out', signOutView, name='sign_out_url'),
     path('products', productsView, name='products_url'),
+    path('add_product', add_product, name='add_product_url'),
     path('add_to_cart/<int:product_id>', addToCartView, name='add_cart_url'),
     path('cart_detail', cartDetailView, name='cart_detail_url'),
     path('profile', profileView, name='profile_url'),

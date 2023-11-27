@@ -41,30 +41,37 @@
                         </ul>
                     </li>
                 </ul>
+                <ul class="navbar-nav mb-2 mb-lg-0">
+    {% if user.is_authenticated %}
+        <li class="nav-item">
+            <a class="nav-link active" style="color: #292929;" aria-current="page" href="{% url 'profile_url' %}">Profile</a>
+        </li>
+        <li>
+            <form class="d-flex" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success" style="color: #292929;" type="submit">Search</button>
+            </form>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" style="color: #292929;" aria-current="page" href="{% url 'sign_out_url' %}">Sign Out</a>
+        </li>
 
-            <ul class="navbar-nav mb-2 mb-lg-0">
-                {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link active" style="color: #292929;" aria-current="page" href="{% url 'profile_url' %}">Profile</a>
-                    </li>
-                    <li>
-                        <form class="d-flex" role="search">
-                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                            <button class="btn btn-outline-success" style="color: #292929;" type="submit">Search</button>
-                        </form>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" style="color: #292929;" aria-current="page" href="{% url 'sign_out_url' %}">Sign Out</a>
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link active" style="color: #292929;" aria-current="page" href="{% url 'sign_up_url' %}">Sign Up</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" style="color: #292929;" aria-current="page" href="{% url 'sign_in_url' %}">Sign In</a>
-                    </li>
-                {% endif %}
-            </ul>
+        {% if user.is_superuser %}
+            <!-- Кнопка, которая будет видна только для администраторов -->
+            <li class="nav-item">
+                <a class="nav-link active" style="color: #292929;" href="{% url 'add_product_url' %}">Add Product</a>
+            </li>
+        {% endif %}
+
+    {% else %}
+        <li class="nav-item">
+            <a class="nav-link active" style="color: #292929;" aria-current="page" href="{% url 'sign_up_url' %}">Sign Up</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" style="color: #292929;" aria-current="page" href="{% url 'sign_in_url' %}">Sign In</a>
+        </li>
+    {% endif %}
+         </ul>
             </div>
         </div>
     </nav>

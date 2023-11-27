@@ -11,9 +11,42 @@ UNIT_CHOICES = [
     ('box', 'Box'),
 ]
 
+CATEGORY_CHOICES = [
+    ('Тюльпаны', 'Тюльпаны'),
+    ('Розы', 'Розы'),
+    ('Лилии', 'Лилии'),
+    ('Хризантемы', 'Хризантемы'),
+    ('Незабудки', 'Незабудки'),
+    ('Ромашки', 'Ромашки'),
+    ('Георгины', 'Георгины'),
+    ('Пионы', 'Пионы'),
+    ('Орхидеи', 'Орхидеи'),
+    ('Подсолнухи', 'Подсолнухи'),
+    ('Ландыши', 'Ландыши'),
+    ('Пионы', 'Пионы'),
+    ('Астры', 'Астры'),
+    ('Сирень', 'Сирень'),
+]
+
+COUNTRY_CHOICES = [
+    ('Эквадор', 'Эквадор'),
+    ('Колумбия', 'Колумбия'),
+    ('Россия', 'Россия'),
+    ('Узбекистан', 'Узбекистан'),
+    ('Грузия', 'Грузия'),
+    ('Россия', 'Россия'),
+    ('Казахстан', 'Казахстан'),
+    ('Эфиопия', 'Эфиопия'),
+    ('Нидерланды', 'Нидерланды'),
+    ('Кения', 'Кения'),
+    ('Италия', 'Италия'),
+    ('Беларусь', 'Беларусь'),
+    ('Чили', 'Чили'),
+    ('Испания', 'Испания'),
+]
 
 class Category(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
 
     def __str__(self):
         return self.name
@@ -22,16 +55,6 @@ class Category(models.Model):
         verbose_name = 'Category'
         verbose_name_plural = 'Categories'
 
-
-class Country(models.Model):
-    name = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = 'Country'
-        verbose_name_plural = 'Countries'
 
 class Customer(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
@@ -71,31 +94,26 @@ class Customer(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = 'Customers'
 
 
-class Manufacturer(models.Model):
-    name = models.CharField(max_length=100)
-    country = models.ForeignKey('Country', on_delete=models.SET_NULL, null=True)
-    address = models.TextField()
-    email = models.EmailField()
+class Country (models.Model):
+    name = models.CharField(max_length=20, choices=COUNTRY_CHOICES)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        verbose_name = 'Manufacturer'
-        verbose_name_plural = 'Manufacturers'
+        verbose_name = 'Country'
+        verbose_name_plural = 'Countries'
 
 
 class Product(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
     image = models.ImageField(upload_to='products')
-    manufacturer = models.ForeignKey('Manufacturer', on_delete=models.CASCADE)
-    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True)
+    country = models.CharField(max_length=20, choices=COUNTRY_CHOICES)
     price = models.PositiveIntegerField()
     value = models.DecimalField(max_digits=10, decimal_places=2)
     unit = models.CharField(max_length=20, choices=UNIT_CHOICES)
-    manufacturing_date = models.DateTimeField()
-    expired_date = models.DateField()
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
 
     def __str__(self):
         return self.name
