@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
@@ -90,6 +90,7 @@ def signOutView(request):
 
 def is_admin(user):
     return user.is_authenticated and user.is_staff
+
 @user_passes_test(is_admin, login_url='home_url')
 def add_product(request):
     if request.method == 'POST':
@@ -105,6 +106,44 @@ def add_product(request):
         'form': form,
     }
     return render(request, 'add_product.html', context)
+
+def view_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    context = {
+        'product': product,
+    }
+    return render(request, 'view_product.html', context)
+
+@user_passes_test(is_admin, login_url='home_url')
+def update_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            form.save()
+            return redirect('products_url')
+    else:
+        form = ProductForm(instance=product)
+
+    context = {
+        'form': form,
+        'product': product,
+    }
+    return render(request, 'update_product.html', context)
+
+@user_passes_test(is_admin, login_url='home_url')
+def delete_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+
+    if request.method == 'POST':
+        product.delete()
+        return redirect('products_url')
+
+    context = {
+        'product': product,
+    }
+    return render(request, 'delete_product.html', context)
 
 
 def productsView(request):
@@ -124,6 +163,14 @@ def addToCartView(request, product_id):
         request.session.modified = True
     return HttpResponse()
 
+def removeProductFromCartView(request, product_id):
+    if 'cart' in request.session.keys():
+        cart = request.session['cart']
+        if product_id in cart:
+            cart.remove(product_id)
+            request.session.modified = True
+
+    return redirect('cart_detail_url')
 
 def cartDetailView(request):
     if request.method == 'GET':

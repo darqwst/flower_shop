@@ -6,14 +6,14 @@
             {% for product in products %}
                 <div class="col">
                     <div class="card h-100" style="border: 1px solid #292929;">
-                        <a href="" style="text-decoration: none;">
+                        <a href="{% url 'view_product_url' product.id %}" style="text-decoration: none;">
                             <img src="{{ product.image.url }}" class="card-img-top" alt="...">
                             <div class="card-body" style="color: black;">
                                 <h3 class="card-title">{{ product.name }}</h3>
                                 <p class="card-text">{{ product.description }}</p>
                             </div>
                         </a>
-                        <div class="card-footer" style="background-color: #F0E130;">
+                        <div class="card-footer" style="background-color: #FCB4D5;">
                             <p class="fs-3 fw-semibold" style="margin: 0px; font-family: sans-serif;">
                                 {{ product.price }} тнг.
                             </p>

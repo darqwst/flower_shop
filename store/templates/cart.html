@@ -12,13 +12,19 @@
                 </tr>
             </thead>
             <tbody>
-                {% for product in cart %}
-                    <tr>
-                        <th scope="row">{{ product.count }}</th>
-                        <td>{{ product.name }}</td>
-                        <td>{{ product.price }} тнг.</td>
-                    </tr>
-                {% endfor %}
+            {% for product in cart %}
+                 <tr>
+                     <th scope="row">{{ product.count }}</th>
+                     <td>{{ product.name }}</td>
+                     <td>{{ product.price }} тнг.</td>
+                     <td>
+                         <form action="{% url 'remove_from_cart_url' product.id %}" method="post" style="display: inline;">
+                             {% csrf_token %}
+                             <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                         </form>
+                     </td>
+                 </tr>
+            {% endfor %}
             </tbody>
         </table>
 
