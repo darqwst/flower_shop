@@ -20,6 +20,7 @@ urlpatterns = [
     path('profile/edit/', profileEditView, name='profile_edit_url'),
     path('profile/delete/', profileDeleteView, name='profile_delete_url'),
     path('remove_from_cart/<int:product_id>', removeProductFromCartView, name='remove_from_cart_url'),
+    path('search/', search_results_view, name='search_results_url'),
 ]
 
 

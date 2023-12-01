@@ -47,10 +47,11 @@
             <a class="nav-link active" style="color: #292929;" aria-current="page" href="{% url 'profile_url' %}">Profile</a>
         </li>
         <li>
-            <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+            <form class="d-flex" role="search" method="GET" action="{% url 'search_results_url' %}">
+                <input class="form-control me-2" type="search" name="q" placeholder="Search" aria-label="Search">
                 <button class="btn btn-outline-success" style="color: #292929;" type="submit">Search</button>
             </form>
+
         </li>
         <li class="nav-item">
             <a class="nav-link active" style="color: #292929;" aria-current="page" href="{% url 'sign_out_url' %}">Sign Out</a>

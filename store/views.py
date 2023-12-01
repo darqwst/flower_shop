@@ -3,8 +3,8 @@ from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
 from django.http import HttpResponse
-from .models import *
 from .forms import *
+from django.db.models import Q
 
 
 def homeView(request):
@@ -259,3 +259,19 @@ def productsByCategoryView(request, category_id):
         'category': category.name
     }
     return render(request=request, template_name='products.html', context=context)
+
+def search_results_view(request):
+    query = request.GET.get('q')
+    if query:
+        results = Product.objects.filter(
+            Q(name__icontains=query) |
+            Q(description__icontains=query) |
+            Q(category__icontains=query)
+        )
+        context = {
+            'results': results,
+            'query': query,
+        }
+        return render(request, 'search_results.html', context)
+    else:
+        return redirect('products_url')
