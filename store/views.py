@@ -1,10 +1,21 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import user_passes_test
-from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
 from django.http import HttpResponse
 from .forms import *
+from django.contrib.auth.hashers import check_password
 from django.db.models import Q
+from rest_framework.status import HTTP_403_FORBIDDEN
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate, login
+from rest_framework.permissions import AllowAny
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import CustomerCreateSerializer
+from django.contrib.auth.models import User
 
 
 def homeView(request):
@@ -21,68 +32,80 @@ def homeView(request):
             'categories': Category.objects.all(),
             'products': products,
         }
+
     return render(request=request, template_name='home.html', context=context)
 
+class CustomerCreateView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = CustomerCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-def signInView(request):
-    if request.method == 'GET':
-        context = {
-            'categories': Category.objects.all()
+class AuthApiView(APIView):
+    permission_classes = [AllowAny, ]
+
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['username', 'password'],
+            properties={
+                'username': openapi.Schema(type=openapi.TYPE_STRING),
+                'password': openapi.Schema(type=openapi.TYPE_STRING),
+            }
+        ),
+        responses={
+            200: 'Добро пожаловать!',
+            403: 'Username или пароль недействительны!',
         }
-        return render(request=request, template_name='sign_in.html', context=context)
-    elif request.method == 'POST':
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        user = authenticate(email=email, password=password)
-        if user is not None:
+    )
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        print(f"Received username: {username}, password: {password}")
+
+        user = authenticate(username=username, password=password)
+        print(f"Authenticated user: {user}")
+
+        print("Attempting authentication for user:", username, "Result:", user)
+
+        if user is not None and check_password(password, user.password):
             login(request, user)
             return redirect('home_url')
-        context = {
-            'error': 'Не верный логин и/или пароль',
-            'email': email,
-            'categories': Category.objects.all()
-        }
-        return render(request=request, template_name='sign_in.html', context=context)
-
-
-def signUpView(request):
-    if request.method == 'GET':
-        context = {
-            'categories': Category.objects.all()
-        }
-        return render(request=request, template_name='sign_up.html', context=context)
-    elif request.method == 'POST':
-        email = request.POST.get('email')
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        password = request.POST.get('password')
-        phone = request.POST.get('phone')
-        birth_date = request.POST.get('birth_date')
-        try:
-            Customer.object.get(email=email)
-        except Customer.DoesNotExist:
-            customer = Customer(
-                email=email,
-                first_name=first_name,
-                last_name=last_name,
-                phone=phone,
-                birth_date=birth_date
-            )
-            customer.set_password(password)
-            customer.save()
-            return redirect('sign_in_url')
         else:
-            context = {
-                'error': 'This email is already taken!',
-                'email': email,
-                'first_name': first_name,
-                'last_name': last_name,
-                'phone': phone,
-                'birth_date': birth_date,
-                'categories': Category.objects.all()
-            }
-            return render(request=request, template_name='sign_up.html', context=context)
+            data = {'message': 'Username или пароль недействительны!'}
+            return Response(data, HTTP_403_FORBIDDEN)
 
+    def get(self, request):
+        return render(request, 'auth.html')
+
+
+class RegistrationApiView(APIView):
+    permission_classes = [AllowAny, ]
+
+    def post(self, request):
+        serializer = CustomerCreateSerializer(data=request.data, partial=False)
+        if serializer.is_valid():
+            customer = serializer.save()
+            print(f'Customer created: {customer.username}')
+
+            try:
+                token, created = Token.objects.get_or_create(user=customer.user)
+                return redirect('auth_api_url')
+
+            except User.DoesNotExist:
+                print(f'User does not exist for username: {customer.username}')
+
+        return redirect('auth_api_url')
+
+    def get(self, request):
+        return render(request, 'registration.html')
+
+
+
+    def get(self, request):
+        return render(request, 'registration.html')
 
 def signOutView(request):
     logout(request)
@@ -275,3 +298,28 @@ def search_results_view(request):
         return render(request, 'search_results.html', context)
     else:
         return redirect('products_url')
+
+class WalletRechargeView(APIView):
+    def get(self, request, *args, **kwargs):
+        form = WalletRechargeForm()
+        return render(request, 'recharge_wallet.html', {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = WalletRechargeForm(request.data)
+        if form.is_valid():
+            card_number = form.cleaned_data['card_number']
+            card_cvv = form.cleaned_data['card_cvv']
+            card_expiry = form.cleaned_data['card_expiry']
+            amount = form.cleaned_data['amount']
+
+            try:
+                customer = Customer.objects.get(email=request.user.email)
+                customer.wallet += amount
+                customer.save()
+                return Response({'message': 'Wallet recharge successful'}, status=status.HTTP_200_OK)
+            except Customer.DoesNotExist:
+                return Response({'error': 'Customer not found'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': 'Invalid form data'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+

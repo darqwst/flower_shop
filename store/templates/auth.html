@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="w-50 p-3" align="left" style="border: 1px solid gray; border-radius: 10px; margin-top: 10px;">
+        <form action="" method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="exampleInputUsername" class="form-label">Username</label>
+                {% if error %}
+                    <input type="text" class="form-control border-danger" id="exampleInputUsername"
+                           placeholder="YourUsername" name="username" value="{{ username }}">
+                {% else %}
+                    <input type="text" class="form-control" id="exampleInputUsername"
+                           placeholder="YourUsername" name="username">
+                {% endif %}
+                <div id="usernameHelp" class="form-text">Enter your username.</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="exampleInputFirstName" class="form-label">First Name</label>
+                <input type="text" class="form-control" id="exampleInputFirstName"
+                       placeholder="Your First Name" name="first_name" value="{{ first_name }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="exampleInputLastName" class="form-label">Last Name</label>
+                <input type="text" class="form-control" id="exampleInputLastName"
+                       placeholder="Your Last Name" name="last_name" value="{{ last_name }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="exampleInputPassword" class="form-label">Password</label>
+                {% if error %}
+                    <input type="password" class="form-control border-danger" id="exampleInputPassword"
+                           placeholder="Password" name="password">
+                {% else %}
+                    <input type="password" class="form-control" id="exampleInputPassword"
+                           placeholder="Password" name="password">
+                {% endif %}
+            </div>
+
+            {% if error %}
+                <p style="color: red;">{{ error }}</p>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary">Sign Up</button>
+        </form>
+    </div>
+{% endblock %}

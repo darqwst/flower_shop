@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+
 {% block content %}
     <div class="w-50 p-3" align="left" style="border: 1px solid gray; border-radius: 10px; margin-top: 10px;">
         <form class="row g-3" action="" method="post">
@@ -6,13 +7,18 @@
 
             <div class="col-12">
                 <label for="inputEmail" class="form-label">Email</label>
+                <input type="email" class="form-control" id="inputEmail" placeholder="YourEmail" name="email" value="{{ email }}">
+            </div>
+
+            <div class="col-12">
+                <label for="inputUsername" class="form-label">Username</label>
                 {% if error %}
-                    <p id="email_text" style="color: red">{{ error }}</p>
-                    <input type="email" class="form-control border-danger" id="inputEmail"
-                           placeholder="Example@example.com" name="email" onchange="changeEmail()" value="{{ email }}">
+                    <p id="username_text" style="color: red">{{ error }}</p>
+                    <input type="text" class="form-control border-danger" id="inputUsername"
+                           placeholder="YourUsername" name="username" onchange="changeUsername()" value="{{ username }}">
                 {% else %}
-                    <input type="email" class="form-control" id="inputEmail" placeholder="Example@example.com"
-                           name="email">
+                    <input type="text" class="form-control" id="inputUsername" placeholder="YourUsername"
+                           name="username">
                 {% endif %}
             </div>
 
@@ -62,6 +68,7 @@
 
         </form>
     </div>
+
     <script>
         function checkPasswords() {
             let password1 = document.getElementById('inputPassword1');
@@ -89,12 +96,12 @@
             }
         };
 
-        function changeEmail() {
-            let email = document.getElementById('inputEmail');
-            let email_text = document.getElementById('email_text');
-            email_text.remove()
-            email.classList.remove('border-danger');
-            email.classList.add('border-success');
+        function changeUsername() {
+            let username = document.getElementById('inputUsername');
+            let username_text = document.getElementById('username_text');
+            username_text.remove()
+            username.classList.remove('border-danger');
+            username.classList.add('border-success');
         };
     </script>
 {% endblock %}

@@ -1,7 +1,8 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, Permission, Group
+from django.contrib.auth.models import AbstractUser, Group, Permission
 from .managers import CustomerManager
 from django.conf import settings
+from django.contrib.auth.models import User
 
 
 UNIT_CHOICES = [
@@ -24,7 +25,6 @@ CATEGORY_CHOICES = [
     ('Орхидеи', 'Орхидеи'),
     ('Подсолнухи', 'Подсолнухи'),
     ('Ландыши', 'Ландыши'),
-    ('Пионы', 'Пионы'),
     ('Астры', 'Астры'),
     ('Сирень', 'Сирень'),
 ]
@@ -57,23 +57,18 @@ class Category(models.Model):
         verbose_name_plural = 'Categories'
 
 
-class Customer(AbstractBaseUser, PermissionsMixin):
+class Customer(AbstractUser):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     email = models.EmailField(unique=True)
+    username = models.CharField(max_length=150, unique=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     phone = models.CharField(max_length=15, unique=True)
     birth_date = models.DateField(null=True, blank=True)
-    wallet = models.PositiveIntegerField(default=0)
-    is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
+    wallet = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
-    user_permissions = models.ManyToManyField(
-        Permission,
-        verbose_name='user permissions',
-        blank=True,
-        related_name='customer_user_permissions',
-        help_text='Specific permissions for this user.',
-    )
+    objects = CustomerManager()
+
     groups = models.ManyToManyField(
         Group,
         verbose_name='groups',
@@ -82,13 +77,16 @@ class Customer(AbstractBaseUser, PermissionsMixin):
         help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
     )
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
-
-    object = CustomerManager()
+    user_permissions = models.ManyToManyField(
+        Permission,
+        verbose_name='user permissions',
+        blank=True,
+        related_name='customer_user_permissions',
+        help_text='Specific permissions for this user.',
+    )
 
     def __str__(self):
-        return self.email
+        return self.username
 
     class Meta:
         verbose_name = 'Customer'
@@ -139,3 +137,4 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name} in Order #{self.order.id}"
+

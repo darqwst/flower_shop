@@ -9,10 +9,10 @@
 <body>
     <nav class="navbar navbar-expand-lg custom-pink-bg" data-bs-theme="dark">
         <style>
-    .custom-pink-bg {
-        background-color: #FCB4D5;
-    }
-</style>
+            .custom-pink-bg {
+                background-color: #FCB4D5;
+            }
+        </style>
         <div class="container-fluid">
             <a class="navbar-brand" style="color: #292929;" href="{% url 'home_url' %}">Flower Shop</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,36 +42,35 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav mb-2 mb-lg-0">
-    {% if user.is_authenticated %}
-        <li class="nav-item">
-            <a class="nav-link active" style="color: #292929;" aria-current="page" href="{% url 'profile_url' %}">Profile</a>
-        </li>
-        <li>
-            <form class="d-flex" role="search" method="GET" action="{% url 'search_results_url' %}">
-                <input class="form-control me-2" type="search" name="q" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" style="color: #292929;" type="submit">Search</button>
-            </form>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link active" style="color: #292929;" aria-current="page" href="{% url 'profile_url' %}">Profile</a>
+                        </li>
+                        <li>
+                            <form class="d-flex" role="search" method="GET" action="{% url 'search_results_url' %}">
+                                <input class="form-control me-2" type="search" name="q" placeholder="Search" aria-label="Search">
+                                <button class="btn btn-outline-success" style="color: #292929;" type="submit">Search</button>
+                            </form>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" style="color: #292929;" aria-current="page" href="{% url 'sign_out_url' %}">Sign Out</a>
+                        </li>
 
-        </li>
-        <li class="nav-item">
-            <a class="nav-link active" style="color: #292929;" aria-current="page" href="{% url 'sign_out_url' %}">Sign Out</a>
-        </li>
+                        {% if user.is_superuser %}
+                            <li class="nav-item">
+                                <a class="nav-link active" style="color: #292929;" href="{% url 'add_product_url' %}">Add Product</a>
+                            </li>
+                        {% endif %}
 
-        {% if user.is_superuser %}
-            <li class="nav-item">
-                <a class="nav-link active" style="color: #292929;" href="{% url 'add_product_url' %}">Add Product</a>
-            </li>
-        {% endif %}
-
-    {% else %}
-        <li class="nav-item">
-            <a class="nav-link active" style="color: #292929;" aria-current="page" href="{% url 'sign_up_url' %}">Sign Up</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link active" style="color: #292929;" aria-current="page" href="{% url 'sign_in_url' %}">Sign In</a>
-        </li>
-    {% endif %}
-         </ul>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link active" style="color: #292929;" aria-current="page" href="{% url 'registration_api_url' %}">Sign Up</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" style="color: #292929;" aria-current="page" href="{% url 'auth_api_url' %}">Sign In</a>
+                        </li>
+                    {% endif %}
+                </ul>
             </div>
         </div>
     </nav>
@@ -80,7 +79,6 @@
         {% block content %}
         {% endblock %}
     </div>
-
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

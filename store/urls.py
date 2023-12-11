@@ -4,8 +4,8 @@ from .views import *
 
 urlpatterns = [
     path('', homeView, name='home_url'),
-    path('sign_in', signInView, name='sign_in_url'),
-    path('sign_up', signUpView, name='sign_up_url'),
+    path('auth/', AuthApiView.as_view(), name='auth_api_url'),
+    path('registration/', RegistrationApiView.as_view(), name='registration_api_url'),
     path('sign_out', signOutView, name='sign_out_url'),
     path('products', productsView, name='products_url'),
     path('product/<int:product_id>/', view_product, name='view_product_url'),
@@ -21,6 +21,7 @@ urlpatterns = [
     path('profile/delete/', profileDeleteView, name='profile_delete_url'),
     path('remove_from_cart/<int:product_id>', removeProductFromCartView, name='remove_from_cart_url'),
     path('search/', search_results_view, name='search_results_url'),
+    path('recharge-wallet/', WalletRechargeView.as_view(), name='recharge_wallet_url'),
 ]
 
 
