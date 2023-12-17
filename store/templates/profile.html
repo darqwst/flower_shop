@@ -29,6 +29,12 @@
                 </tr>
             </tbody>
         </table>
+
+        <!-- Добавленная часть для истории заказов -->
+        <div align="center">
+            <a href="{% url 'order_history_url' %}" class="btn btn-info">Order History</a>
+        </div>
+
         {% if user.is_superuser %}
             <div align="center">
                 <button type="button" class="btn btn-primary" onclick="location.href='{% url 'admin:index' %}'">

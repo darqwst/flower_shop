@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="w-50 p-3" align="center" style="border: 1px solid gray; border-radius: 10px; margin-top: 10px;">
+        <h1>Payment Confirmation</h1>
+
+        <form method="post" action="{% url 'process_payment_url' %}">
+            {% csrf_token %}
+            <input type="hidden" name="total" value="{{ form.initial.total }}">
+            <input type="hidden" name="action" value="{{ form.initial.action }}">
+
+            <p>Total Amount: {{ form.initial.total }}</p>
+
+            <button type="submit" class="btn btn-success">Confirm Payment</button>
+        </form>
+    </div>
+{% endblock %}

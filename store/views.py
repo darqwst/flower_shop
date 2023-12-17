@@ -16,7 +16,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import CustomerCreateSerializer
 from django.contrib.auth.models import User
-
+from django.views import View
+from django.contrib import messages
+from .models import WalletTransaction, Customer
+from .forms import WalletTransactionForm
+from django.db import transaction
 
 def homeView(request):
     products = Product.objects.all()[:15]
@@ -102,11 +106,6 @@ class RegistrationApiView(APIView):
     def get(self, request):
         return render(request, 'registration.html')
 
-
-
-    def get(self, request):
-        return render(request, 'registration.html')
-
 def signOutView(request):
     logout(request)
     return redirect('home_url')
@@ -168,15 +167,23 @@ def delete_product(request, product_id):
     }
     return render(request, 'delete_product.html', context)
 
-
 def productsView(request):
+    sort_by = request.GET.get('sort_by', 'price')
+    order = request.GET.get('order', 'asc')
+
+    products = Product.objects.all()
+
+    if sort_by == 'price':
+        products = products.order_by('price') if order == 'asc' else products.order_by('-price')
+    elif sort_by == 'name':
+        products = products.order_by('name') if order == 'asc' else products.order_by('-name')
+
     context = {
         'categories': Category.objects.all(),
-        'products': Product.objects.all(),
+        'products': products,
         'category': 'All Products'
     }
     return render(request=request, template_name='products.html', context=context)
-
 
 def addToCartView(request, product_id):
     if 'cart' not in request.session.keys():
@@ -184,7 +191,8 @@ def addToCartView(request, product_id):
     else:
         request.session['cart'].append(product_id)
         request.session.modified = True
-    return HttpResponse()
+
+    return redirect('cart_detail_url')
 
 def removeProductFromCartView(request, product_id):
     if 'cart' in request.session.keys():
@@ -195,6 +203,7 @@ def removeProductFromCartView(request, product_id):
 
     return redirect('cart_detail_url')
 
+@transaction.atomic
 def cartDetailView(request):
     if request.method == 'GET':
         context = {
@@ -204,7 +213,7 @@ def cartDetailView(request):
         if 'cart' in request.session.keys():
             context['cart'] = []
             count = 1
-            for product_id in request.session['cart']:
+            for product_id in request.session.get('cart', []):
                 product = Product.objects.get(id=product_id)
                 product.count = count
                 context['cart'].append(product)
@@ -214,20 +223,28 @@ def cartDetailView(request):
         return render(request=request, template_name='cart.html', context=context)
     elif request.method == 'POST':
         total = int(request.POST.get('total'))
-        if request.user.wallet >= total:
-            request.user.wallet -= total
-            request.user.save()
+        customer = request.user.customer
+
+        if customer.wallet >= total:
+            customer.wallet -= total
+            customer.save()
+
+            order = Order.objects.create(user=request.user, total_price=total)
+            for product_id in request.session.get('cart', []):
+                product = Product.objects.get(id=product_id)
+                OrderItem.objects.create(order=order, product=product, quantity=1)
             request.session.pop('cart')
+
             return redirect('profile_url')
         else:
             context = {
                 'categories': Category.objects.all(),
-                'error': 'Balance on you Wallet is not enough!'
+                'error': 'Balance on your Wallet is not enough!'
             }
             if 'cart' in request.session.keys():
                 context['cart'] = []
                 count = 1
-                for product_id in request.session['cart']:
+                for product_id in request.session.get('cart', []):
                     product = Product.objects.get(id=product_id)
                     product.count = count
                     context['cart'].append(product)
@@ -235,12 +252,11 @@ def cartDetailView(request):
                 context['total'] = total
             return render(request=request, template_name='cart.html', context=context)
 
-
 def profileView(request):
     if request.user.is_authenticated:
         context = {
             'categories': Category.objects.all(),
-            'user': request.user
+            'user': request.user.customer,
         }
         return render(request=request, template_name='profile.html', context=context)
     return redirect('sign_in_url')
@@ -299,27 +315,79 @@ def search_results_view(request):
     else:
         return redirect('products_url')
 
-class WalletRechargeView(APIView):
-    def get(self, request, *args, **kwargs):
-        form = WalletRechargeForm()
-        return render(request, 'recharge_wallet.html', {'form': form})
+class RechargeWalletView(View):
+    template_name = 'recharge_wallet.html'
 
-    def post(self, request, *args, **kwargs):
-        form = WalletRechargeForm(request.data)
+    def get(self, request):
+        form = WalletTransactionForm()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = WalletTransactionForm(request.POST)
+
         if form.is_valid():
             card_number = form.cleaned_data['card_number']
-            card_cvv = form.cleaned_data['card_cvv']
-            card_expiry = form.cleaned_data['card_expiry']
+            expiration_date = form.cleaned_data['expiration_date']
+            cvv = form.cleaned_data['cvv']
             amount = form.cleaned_data['amount']
-
+            user = request.user
             try:
-                customer = Customer.objects.get(email=request.user.email)
-                customer.wallet += amount
-                customer.save()
-                return Response({'message': 'Wallet recharge successful'}, status=status.HTTP_200_OK)
+                customer = Customer.objects.get(user=user)
             except Customer.DoesNotExist:
-                return Response({'error': 'Customer not found'}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'error': 'Invalid form data'}, status=status.HTTP_400_BAD_REQUEST)
+                messages.error(request, 'User has no customer.')
+                return redirect('recharge_wallet_url')
+
+            customer.wallet += amount
+            customer.save()
+
+            WalletTransaction.objects.create(
+                user=user,
+                card_number=card_number,
+                expiration_date=expiration_date,
+                cvv=cvv,
+                amount=amount
+            )
+
+            messages.success(request, 'Wallet successfully recharged.')
+            return redirect('profile_url')
+
+        return render(request, self.template_name, {'form': form})
 
 
+class ProcessPaymentView(View):
+    template_name = 'process_payment.html'
 
+    def post(self, request):
+        form = PaymentForm(request.POST)
+
+        if form.is_valid():
+            total = form.cleaned_data['total']
+            action = form.cleaned_data['action']
+            user = request.user
+            wallet_transaction = WalletTransaction.objects.create(
+                user=user,
+                amount=total
+            )
+
+            if user.customer.wallet >= total:
+                user.customer.wallet -= total
+                user.customer.save()
+                order = Order.objects.create(
+                    user=user,
+                    total_price=total
+                )
+                user_order = Order.objects.get_or_create(user=user)[0]
+                user_order.items.clear()
+
+                messages.success(request, 'Payment successful. Order placed.')
+                return redirect('profile_url')
+            else:
+                messages.error(request, 'Insufficient funds in your wallet.')
+        return redirect('cart_detail_url')
+
+class OrderHistoryView(View):
+    template_name = 'order_history.html'
+
+    def get(self, request):
+        orders = Order.objects.filter(user=request.user).order_by('-order_date')
+        return render(request, self.template_name, {'orders': orders})

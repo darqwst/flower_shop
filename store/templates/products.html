@@ -1,6 +1,23 @@
 {% extends 'base.html' %}
 {% block content %}
     <h1 align="center" style="margin: 20px;">{{ category }}</h1>
+
+    <form method="get" action="{% url 'products_url' %}">
+        <label for="sort_by">Sort by:</label>
+        <select name="sort_by" id="sort_by">
+            <option value="price" {% if request.GET.sort_by == 'price' %}selected{% endif %}>Price</option>
+            <option value="name" {% if request.GET.sort_by == 'name' %}selected{% endif %}>Name</option>
+        </select>
+
+        <label for="order">Order:</label>
+        <select name="order" id="order">
+            <option value="asc" {% if request.GET.order == 'asc' %}selected{% endif %}>Ascending</option>
+            <option value="desc" {% if request.GET.order == 'desc' %}selected{% endif %}>Descending</option>
+        </select>
+
+        <input type="submit" value="Sort">
+    </form>
+
     <div class="w-75 p-3" style="border: 1px solid gray; border-radius: 10px; margin-top: 10px; background-color: #292929;">
         <div class="row row-cols-1 row-cols-md-4 g-4">
             {% for product in products %}

@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
-
 {% block content %}
-  <h2>Wallet Recharge</h2>
-  <form method="post" action="{% url 'recharge_wallet_url' %}">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Recharge</button>
-  </form>
+  <div class="w-50 p-3" align="left" style="border: 1px solid gray; border-radius: 10px; margin-top: 10px;">
+    <h2>Recharge Wallet</h2>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-success">Recharge</button>
+    </form>
+  </div>
 {% endblock %}

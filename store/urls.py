@@ -21,7 +21,8 @@ urlpatterns = [
     path('profile/delete/', profileDeleteView, name='profile_delete_url'),
     path('remove_from_cart/<int:product_id>', removeProductFromCartView, name='remove_from_cart_url'),
     path('search/', search_results_view, name='search_results_url'),
-    path('recharge-wallet/', WalletRechargeView.as_view(), name='recharge_wallet_url'),
+    path('recharge-wallet/', RechargeWalletView.as_view(), name='recharge_wallet_url'),
+    path('process_payment/', ProcessPaymentView.as_view(), name='process_payment_url'),
+    path('order_history/', OrderHistoryView.as_view(), name='order_history_url'),
 ]
-
 

@@ -85,6 +85,10 @@ class Customer(AbstractUser):
         help_text='Specific permissions for this user.',
     )
 
+    def add_to_wallet(self, amount):
+        self.wallet += amount
+        self.save()
+
     def __str__(self):
         return self.username
 
@@ -121,19 +125,31 @@ class Product(models.Model):
         verbose_name = 'Product'
         verbose_name_plural = 'Products'
 
+class WalletTransaction(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    card_number = models.CharField(max_length=16)
+    expiration_date = models.CharField(max_length=5)
+    cvv = models.CharField(max_length=4)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.amount} {self.timestamp}"
+
 class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    products = models.ManyToManyField('Product', through='OrderItem')
+    items = models.ManyToManyField('Product', through='OrderItem')
     total_price = models.PositiveIntegerField()
     order_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Order #{self.id} - {self.user.email}"
 
+
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    product = models.ForeignKey('Product', on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField()
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name} in Order #{self.order.id}"

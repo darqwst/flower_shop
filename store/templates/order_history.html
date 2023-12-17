@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="w-50 p-3" align="left" style="border: 1px solid gray; border-radius: 10px; margin-top: 10px;">
+        {% if orders %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Order Details</th>
+                        <th>Order Date</th>
+                        <th>Total Price</th>
+                        <th>Order Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        {% with order_items=order.orderitem_set.all %}
+                            {% for item in order_items %}
+                                <tr>
+                                    {% if forloop.first %}
+                                        <td rowspan="{{ order_items|length }}">
+                                            {% for subitem in order_items %}
+                                                <div>
+                                                    <img src="{{ subitem.product.image.url }}" alt="{{ subitem.product.name }}" width="30" style="margin-right: 5px; float: left;">
+                                                    <p style="font-size: 15px;">{{ subitem.product.name }}</p>
+                                                </div>
+                                            {% endfor %}
+                                        </td>
+                                        <td rowspan="{{ order_items|length }}">{{ order.order_date }}</td>
+                                        <td rowspan="{{ order_items|length }}">{{ order.total_price }} тнг.</td>
+                                    {% endif %}
+                                    <td>{{ item.quantity }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endwith %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No orders found.</p>
+        {% endif %}
+    </div>
+{% endblock %}
