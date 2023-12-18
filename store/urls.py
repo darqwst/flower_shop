@@ -17,6 +17,7 @@ urlpatterns = [
     path('profile', profileView, name='profile_url'),
     path('products/<int:category_id>', productsByCategoryView, name='products_by_category_url'),
     path('profile/', profileView, name='profile_url'),
+    path('get_location/', get_location, name='get_location_url'),
     path('profile/edit/', profileEditView, name='profile_edit_url'),
     path('profile/delete/', profileDeleteView, name='profile_delete_url'),
     path('remove_from_cart/<int:product_id>', removeProductFromCartView, name='remove_from_cart_url'),

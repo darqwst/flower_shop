@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1 align="center">My Location</h1>
+    <p id="latitude">Latitude:</p>
+    <p id="longitude">Longitude:</p>
+    <p id="location">Location:</p>
+
+    <div align="center">
+        <label for="citySelect">Choose a city:</label>
+        <select id="citySelect">
+            <option value="Алматы">Алматы</option>
+            <option value="Нур-Султан">Нур-Султан</option>
+            <option value="Шымкент">Шымкент</option>
+            <option value="Семей">Семей</option>
+            <option value="Актобе">Актобе</option>
+            <option value="Караганда">Караганда</option>
+            <option value="Павлодар">Павлодар</option>
+            <option value="Кызылорда">Кызылорда</option>
+            <option value="Тараз">Тараз</option>
+            <option value="Атырау">Атырау</option>
+
+        </select>
+        <button onclick="saveCity()">Save City</button>
+    </div>
+
+
+    <script>
+
+        window.onload = function () {
+            var savedCity = localStorage.getItem("selectedCity");
+            if (savedCity) {
+                document.getElementById("citySelect").value = savedCity;
+                updateLocation(savedCity);
+            }
+        };
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        } else {
+            document.getElementById("latitude").innerHTML = "Geolocation is not supported by this browser.";
+        }
+
+        function showPosition(position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+
+            document.getElementById("latitude").innerHTML = "Latitude: " + latitude;
+            document.getElementById("longitude").innerHTML = "Longitude: " + longitude;
+            var apiUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    var city = data.address.city || data.address.town || data.address.village || "Unknown";
+                    var country = data.address.country || "Unknown";
+                    document.getElementById("location").innerHTML = `Location: ${city}, ${country}`;
+                })
+                .catch(error => {
+                    console.error('Error fetching location:', error);
+                    document.getElementById("location").innerHTML = "Error fetching location.";
+                });
+        }
+        function saveCity() {
+            var selectedCity = document.getElementById("citySelect").value;
+            localStorage.setItem("selectedCity", selectedCity);
+            updateLocation(selectedCity);
+            alert("City saved: " + selectedCity);
+        }
+        function updateLocation(city) {
+            var country = "Казахстан";
+            document.getElementById("location").innerHTML = `Location: ${city}, ${country}`;
+        }
+    </script>
+{% endblock %}

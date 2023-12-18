@@ -21,15 +21,29 @@
                 {% endif %}
 
                 <div class="text-center mt-3">
+                    <button id="{{ product.id }}" class="btn btn-success"
+                            onclick="addToCart(this.id, '{% url 'add_cart_url' product.id %}')">
+                        Add To Cart
+                    </button>
                     <a href="{% url 'products_url' %}" class="btn btn-secondary">Back to Products</a>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        function addToCart(button_id, url) {
+            let button = document.getElementById(button_id);
+            let request = new XMLHttpRequest();
+
+            request.onreadystatechange = function() {
+                if (request.readyState == 4) {
+                    button.innerHTML = 'Added!';
+                }
+            }
+
+            request.open('GET', url, true);
+            request.send(null);
+        }
+    </script>
 {% endblock %}
-
-
-
-
-
-

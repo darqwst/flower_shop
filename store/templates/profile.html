@@ -35,6 +35,11 @@
             <a href="{% url 'order_history_url' %}" class="btn btn-info">Order History</a>
         </div>
 
+        <!-- Добавленная часть для кнопки My Location -->
+        <div align="center">
+            <a href="{% url 'get_location_url' %}" class="btn btn-primary">My Location</a>
+        </div>
+
         {% if user.is_superuser %}
             <div align="center">
                 <button type="button" class="btn btn-primary" onclick="location.href='{% url 'admin:index' %}'">

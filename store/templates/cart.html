@@ -9,6 +9,7 @@
                     <th scope="col">#</th>
                     <th scope="col">Name</th>
                     <th scope="col">Price</th>
+                    <th scope="col">Details</th>
                 </tr>
             </thead>
             <tbody>
@@ -18,6 +19,7 @@
                      <td>{{ product.name }}</td>
                      <td>{{ product.price }} тнг.</td>
                      <td>
+                         <a href="{% url 'view_product_url' product.id %}" class="btn btn-info btn-sm">Details</a>
                          <form action="{% url 'remove_from_cart_url' product.id %}" method="post" style="display: inline;">
                              {% csrf_token %}
                              <button type="submit" class="btn btn-danger btn-sm">Remove</button>

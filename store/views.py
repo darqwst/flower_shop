@@ -21,6 +21,7 @@ from django.contrib import messages
 from .models import WalletTransaction, Customer
 from .forms import WalletTransactionForm
 from django.db import transaction
+import requests
 
 def homeView(request):
     products = Product.objects.all()[:15]
@@ -391,3 +392,20 @@ class OrderHistoryView(View):
     def get(self, request):
         orders = Order.objects.filter(user=request.user).order_by('-order_date')
         return render(request, self.template_name, {'orders': orders})
+
+
+def get_location(request):
+    try:
+        ip_address = requests.get('https://api64.ipify.org?format=json').json()['ip']
+        response = requests.get(f'https://ipinfo.io/{ip_address}/json')
+        data = response.json()
+        context = {
+            'ip_address': data['ip'],
+            'location': f"{data['city']}, {data['region']}, {data['country']}",
+            'latitude_longitude': data['loc']
+        }
+
+        return render(request, 'location.html', context)
+
+    except Exception as e:
+        return HttpResponse(f"Error: {e}")
