@@ -3,16 +3,16 @@
     <h1 align="center" style="margin: 20px;">{{ category }}</h1>
 
     <form method="get" action="{% url 'products_url' %}">
-        <label for="sort_by">Sort by:</label>
+        <label for="sort_by">Сортировка по:</label>
         <select name="sort_by" id="sort_by">
-            <option value="price" {% if request.GET.sort_by == 'price' %}selected{% endif %}>Price</option>
-            <option value="name" {% if request.GET.sort_by == 'name' %}selected{% endif %}>Name</option>
+            <option value="price" {% if request.GET.sort_by == 'price' %}selected{% endif %}>Цене</option>
+            <option value="name" {% if request.GET.sort_by == 'name' %}selected{% endif %}>Названию</option>
         </select>
 
-        <label for="order">Order:</label>
+        <label for="order">Порядок:</label>
         <select name="order" id="order">
-            <option value="asc" {% if request.GET.order == 'asc' %}selected{% endif %}>Ascending</option>
-            <option value="desc" {% if request.GET.order == 'desc' %}selected{% endif %}>Descending</option>
+            <option value="asc" {% if request.GET.order == 'asc' %}selected{% endif %}>Возрастание</option>
+            <option value="desc" {% if request.GET.order == 'desc' %}selected{% endif %}>Убывание</option>
         </select>
 
         <input type="submit" value="Sort">

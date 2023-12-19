@@ -25,8 +25,7 @@
 
 
     <script>
-
-        window.onload = function () {
+    window.onload = function () {
             var savedCity = localStorage.getItem("selectedCity");
             if (savedCity) {
                 document.getElementById("citySelect").value = savedCity;
@@ -36,8 +35,6 @@
 
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(showPosition);
-        } else {
-            document.getElementById("latitude").innerHTML = "Geolocation is not supported by this browser.";
         }
 
         function showPosition(position) {

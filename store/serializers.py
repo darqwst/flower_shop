@@ -24,8 +24,6 @@ class CustomerCreateSerializer(serializers.ModelSerializer):
 
         return customer
 
-
-
 class WalletRechargeSerializer(serializers.Serializer):
     card_number = serializers.CharField(max_length=16)
     card_cvv = serializers.CharField(max_length=4)
