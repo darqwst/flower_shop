@@ -68,12 +68,12 @@ class AuthApiView(APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
-        print(f"Received username: {username}, password: {password}")
+        print(f"Полученный юзернэйм: {username}, пароль: {password}")
 
         user = authenticate(username=username, password=password)
-        print(f"Authenticated user: {user}")
+        print(f"Пользователь: {user}")
 
-        print("Attempting authentication for user:", username, "Result:", user)
+        print("Попытка:", username, "Результат:", user)
 
         if user is not None and check_password(password, user.password):
             login(request, user)
@@ -100,7 +100,7 @@ class RegistrationApiView(APIView):
                 return redirect('auth_api_url')
 
             except User.DoesNotExist:
-                print(f'User does not exist for username: {customer.username}')
+                print(f'Нет такого юзера: {customer.username}')
 
         return redirect('auth_api_url')
 
